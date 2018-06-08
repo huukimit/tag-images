@@ -1,0 +1,10 @@
+os: ubuntu
+language: generic
+
+after_success:
+  - eval "$(ssh-agent -s)"
+  - echo "$SSH_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - ssh-add -l
+  - ssh $DEPLOY_USER@$DEPLOY_HOST -o StrictHostKeyChecking=no -o PasswordAuthentication=no
+  - docker exec -it viblo_php-fpm sh
+  - php artisan viblo:fetch-tag-images $TRAVIS_COMMIT
